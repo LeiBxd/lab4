@@ -1,0 +1,309 @@
+package lab4;
+
+import javax.swing.*;
+
+import java.awt.*;
+
+import java.awt.event.*;
+
+// Класс главной формы
+
+public class MainForm extends JFrame {
+
+    private Tags tags; // Объект игры
+
+    private final JPanel panel; // Объект панели на форме
+
+// Конструктор
+
+    public MainForm() {
+
+// Вызываем конструктор базового класса
+
+        super("Game");
+
+// Создаём панель с табличной разметкой с размерами игрового поля
+
+        panel = new JPanel();
+
+        panel.setLayout(new GridLayout(Tags.FIELD_SIZE, Tags.FIELD_SIZE, 0, 0));
+
+// Добавляем слушатель события нажатия клавиш
+
+        addKeyListener(new KeyAdapter() {
+
+// Метод обработки события, когда нажатую клавишу отпустили.
+
+            public void keyReleased(KeyEvent e) {
+
+// Код нажатой клавиши
+
+                var keyCode = e.getKeyCode();
+
+                try {
+
+// Соотносим клавишу с направлением для игры, делаем ход и определяем, выграл ли игрок
+
+                    var isWin = switch (keyCode) {
+
+                        case KeyEvent.VK_UP -> tags.select(Direction.UP);
+
+                        case KeyEvent.VK_DOWN -> tags.select(Direction.DOWN);
+
+                        case KeyEvent.VK_LEFT -> tags.select(Direction.LEFT);
+
+                        case KeyEvent.VK_RIGHT -> tags.select(Direction.RIGHT);
+
+                        default -> false;
+
+                    };
+
+// Рисуем кнопки на панели
+
+                    renderButtons();
+
+// Если игрок победил, выводим модальное диалоговое окно с сообщением, что он выиграл
+
+                    if (isWin) {
+
+                        JOptionPane.showMessageDialog(MainForm.this, "Win!", "Info", JOptionPane.INFORMATION_MESSAGE);
+
+                    }
+
+                } catch (Exception ignored) {
+
+                }
+
+            }
+
+        });
+
+// Создаём новую игру
+
+        startNewGame();
+
+// Создаём меню
+
+        setJMenuBar(createMenuBar());
+
+// Добавляем панель на форму
+
+        add(panel);
+
+// При закрытии формы завершаем работу программы
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+// Выставляем размеры формы
+
+        setSize(400, 400);
+
+// Запрещаем изменять размеры окна
+
+        setResizable(false);
+
+// Размещаем окно по центру экрана
+
+        setLocationRelativeTo(null);
+
+// Показываем окно на экране
+
+        setVisible(true);
+
+    }
+
+// создает меню
+
+    private JMenuBar createMenuBar() {
+
+// Меню
+
+        var menuBar = new JMenuBar();
+
+// Элемент меню Файл
+
+        var fileMenu = new JMenu("File");
+
+// Подэлемент меню Файл -> Новый
+
+        var newItem = new JMenuItem("New");
+
+// Подэлемент меню Файл -> Выход
+
+        var exitItem = new JMenuItem("Exit");
+
+// Ставим мнемонику на кнопку N
+
+        newItem.setMnemonic(KeyEvent.VK_N);
+
+// Ставим акселератор на сочетание клавиш CTRL + N
+
+        newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+
+// При нажатии на подэлемент начинаем новую игру
+
+        newItem.addActionListener((e) -> startNewGame());
+
+// Ставим мнемонику на кнопку E
+
+        exitItem.setMnemonic(KeyEvent.VK_E);
+
+// Ставим акселератор на сочетание клавиш CTRL + E
+
+        exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+
+// При нажатии на подэлемент завершаем работу программы
+
+        exitItem.addActionListener((e) -> System.exit(0));
+
+// Ставим мнемонику на кнопку F
+
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+
+// Добавляем подэлементы в элемент меню
+
+        fileMenu.add(newItem);
+
+        fileMenu.addSeparator();
+
+        fileMenu.add(exitItem);
+
+// Элемент меню Помощь
+
+        var helpMenu = new JMenu("Help");
+
+// Подэлемент меню Помощь -> О программе
+
+        var aboutItem = new JMenuItem("About");
+
+// Ставим мнемонику на кнопку A
+
+        aboutItem.setMnemonic(KeyEvent.VK_A);
+
+// Ставим акселератор на сочетание клавиш CTRL + A
+
+        aboutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
+
+// При нажатии на подэлемент выводим модальное диалоговое окно с информацией о программе
+
+        aboutItem.addActionListener((e) -> JOptionPane.showMessageDialog(this, "Kondratenko Roman\nP3168\n2022", "Info", JOptionPane.INFORMATION_MESSAGE));
+
+// Ставим мнемонику на кнопку H
+
+        helpMenu.setMnemonic(KeyEvent.VK_H);
+
+// Добавляем подэлемент в элемент меню
+
+        helpMenu.add(aboutItem);
+
+// Добавляем элементы в меню
+
+        menuBar.add(fileMenu);
+
+        menuBar.add(helpMenu);
+
+        return menuBar;
+
+    }
+
+// Начинает новую игру
+
+    private void startNewGame() {
+
+// Новый объект игры
+
+        tags = new Tags();
+
+// Рисуем кнопки на панели
+
+        renderButtons();
+
+    }
+
+// Рисуем кнопки на панели
+
+    private void renderButtons() {
+
+// Удаляем кнопки с панели
+
+        panel.removeAll();
+
+// Получаем поле игры
+
+        var field = this.tags.getField();
+
+// В цикле идём по полю игры
+
+        for (var y = 0; y < field.length; y++) {
+
+            for (var x = 0; x < field[y].length; x++) {
+
+// Копии координат (нужны для сохранения контекста лямбда-функции)
+
+                var finalX = x;
+
+                var finalY = y;
+
+// Объект кнопки
+
+                var button = new JButton();
+
+// Выставляем шрифт и размер текста
+
+                button.setFont(new Font("Default", Font.ITALIC, 48));
+
+// Выставляем текст в зависимости от кости на поле. Если кость равна 0, то кнопка пустая, иначе ставим значение кости
+
+                button.setText(field[y][x] == 0 ? "" : String.valueOf(field[y][x]));
+
+// Убираем возможность фокуса для кнопки
+
+                button.setFocusable(false);
+
+// Добавляем обработчик нажатия кнопки
+
+                button.addActionListener((e) -> onButtonClick(finalX, finalY));
+
+// Добавляем кнопку на панель
+
+                panel.add(button);
+
+            }
+
+        }
+
+// Обновляем интерфейс на экране
+
+        panel.updateUI();
+
+    }
+
+// Метод для обработки нажатия кнопки, делает ход в игре
+
+    private void onButtonClick(int x, int y) {
+
+        try {
+
+// Делаем ход и определяем, выиграл ли игрок
+
+            var isWin = tags.select(new Point(x, y));
+
+// Рисуем кнопки на панели
+
+            renderButtons();
+
+// Если игрок победил, выводим модальное диалоговое окно с сообщением, что он выиграл
+
+            if (isWin) {
+
+                JOptionPane.showMessageDialog(this, "You win!", "Info", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+
+        } catch (Exception ignored) {
+
+        }
+
+    }
+
+}
