@@ -1,0 +1,13 @@
+package lab4;
+
+public class Program {
+
+    public static void main(String[] args) {
+
+// Объект формы
+
+        new MainForm();
+
+    }
+
+}
