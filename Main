@@ -1,0 +1,12 @@
+package lab444;
+import javax.swing.*;
+
+class Main extends JFrame {
+    public static void main(String[] args) {
+        Puzzle frame = new Puzzle();
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+}
